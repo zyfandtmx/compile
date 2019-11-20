@@ -18,15 +18,7 @@ public class LexicalAnalysis {
         for (char aChar : chars) {
             switch (dfaState) {
                 case INIT: {
-                    if (isAlpha(aChar)) {
-                        dfaState = DfaState.ID;
-                    } else if (aChar == '>') {
-                        dfaState = DfaState.GT;
-                    } else if (isNum(aChar)) {
-                        dfaState = DfaState.NUM;
-                    } else if (aChar == '=') {
-                        dfaState = DfaState.ASSIGNMENT;
-                    }
+                    dfaState = initState(aChar);
                     sb = new StringBuilder(aChar + "");
                     break;
                 }
@@ -35,19 +27,26 @@ public class LexicalAnalysis {
                         sb.append(aChar);
                     } else {
                         tokens.add(new Token(sb.toString(), TokenType.IDENTIFIER));
-                        dfaState = DfaState.INIT;
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
                     }
                     break;
                 }
                 case GT: {
                     if (aChar == '=') {
                         sb.append(aChar);
-                        tokens.add(new Token(sb.toString(), TokenType.GE));
-                        dfaState = DfaState.INIT;
+                        dfaState = DfaState.GE;
                     } else {
                         tokens.add(new Token(sb.toString(), TokenType.GT));
-                        dfaState = DfaState.INIT;
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
                     }
+                    break;
+                }
+                case GE: {
+                    tokens.add(new Token(sb.toString(), TokenType.GE));
+                    dfaState = initState(aChar);
+                    sb = new StringBuilder(aChar + "");
                     break;
                 }
                 case NUM: {
@@ -55,7 +54,8 @@ public class LexicalAnalysis {
                         sb.append(aChar);
                     } else {
                         tokens.add(new Token(sb.toString(), TokenType.INTLITERAL));
-                        dfaState = DfaState.INIT;
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
                     }
                     break;
                 }
@@ -63,10 +63,12 @@ public class LexicalAnalysis {
                     if (aChar == '=') {
                         sb.append(aChar);
                         tokens.add(new Token(sb.toString(), TokenType.EQ));
-                        dfaState = DfaState.INIT;
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
                     } else {
                         tokens.add(new Token(sb.toString(), TokenType.ASSIGNMENT));
-                        dfaState = DfaState.INIT;
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
                     }
                     break;
                 }
@@ -76,6 +78,18 @@ public class LexicalAnalysis {
         return tokens;
     }
 
+    private DfaState initState(char aChar) {
+        if (isAlpha(aChar)) {
+            return DfaState.ID;
+        } else if (aChar == '>') {
+            return DfaState.GT;
+        } else if (isNum(aChar)) {
+            return DfaState.NUM;
+        } else if (aChar == '=') {
+            return DfaState.ASSIGNMENT;
+        }
+        return DfaState.INIT;
+    }
     private boolean isNum(char aChar) {
         return aChar >= '0' && aChar <= '9';
     }
@@ -86,12 +100,12 @@ public class LexicalAnalysis {
 
     public static void main(String[] args) {
         String testCode1 = "a >= 35";
-        String testCode2 = "int a = 40";
-        String testCode3 = "age = 40";
-        List<Token> analysis = new LexicalAnalysis().analysis(testCode1);
-        System.out.println(String.format("%-10s      %-10s", "VALUE", "TYPE"));
+        String testCode2 = "int a=40";
+        String testCode3 = "age=40";
+        List<Token> analysis = new LexicalAnalysis().analysis(testCode3);
+        System.out.println(String.format("%-10s  %-10s", "VALUE", "TYPE"));
         for (Token token : analysis) {
-            System.out.println(String.format("%-10s      %-10s", token.getValue(), token.getType()));
+            System.out.println(String.format("%-10s  %-10s", token.getValue(), token.getType()));
         }
     }
 }
