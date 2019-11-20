@@ -1,5 +1,7 @@
 package mycompiler.lexical;
 
 public enum DfaState {
-    INIT, ID, GT, GE, EQ, NUM, ASSIGNMENT;
+    INIT, ID, GT, GE, EQ, NUM, ASSIGNMENT,
+    PLUS, MINUS, STAR, SLASH,
+    ;
 }
