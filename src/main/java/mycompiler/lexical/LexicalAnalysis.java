@@ -109,6 +109,45 @@ public class LexicalAnalysis {
                     sb = new StringBuilder(aChar + "");
                     break;
                 }
+                case INT_1: {
+                    if (aChar == 'n') {
+                        sb.append(aChar);
+                        dfaState = DfaState.INT_2;
+                    } else if (isAlpha(aChar) || isNum(aChar)) {
+                        sb.append(aChar);
+                        dfaState = DfaState.ID;
+                    } else {
+                        tokens.add(new Token(sb.toString(), TokenType.IDENTIFIER));
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
+                    }
+                    break;
+                }
+                case INT_2: {
+                    if (aChar == 't') {
+                        sb.append(aChar);
+                        dfaState = DfaState.INT_3;
+                    } else if (isAlpha(aChar) || isNum(aChar)) {
+                        sb.append(aChar);
+                        dfaState = DfaState.ID;
+                    } else {
+                        tokens.add(new Token(sb.toString(), TokenType.IDENTIFIER));
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
+                    }
+                    break;
+                }
+                case INT_3: {
+                    if (isAlpha(aChar) || isNum(aChar)) {
+                        sb.append(aChar);
+                        dfaState = DfaState.ID;
+                    } else {
+                        tokens.add(new Token(sb.toString(), TokenType.INT));
+                        dfaState = initState(aChar);
+                        sb = new StringBuilder(aChar + "");
+                    }
+                    break;
+                }
                 default:
             }
         }
@@ -117,6 +156,9 @@ public class LexicalAnalysis {
 
     private DfaState initState(char aChar) {
         if (isAlpha(aChar)) {
+            if (aChar == 'i') {
+                return DfaState.INT_1;
+            }
             return DfaState.ID;
         } else if (aChar == '>') {
             return DfaState.GT;
@@ -150,7 +192,7 @@ public class LexicalAnalysis {
         String testCode3 = "age=40";
         String testCode4 = "3+ 4 * 5 /6 -7";
 
-        List<Token> analysis = new LexicalAnalysis().analysis(testCode4);
+        List<Token> analysis = new LexicalAnalysis().analysis(testCode2);
         System.out.println(String.format("%-10s  %-10s", "VALUE", "TYPE"));
         for (Token token : analysis) {
             System.out.println(String.format("%-10s  %-10s", token.getValue(), token.getType()));
